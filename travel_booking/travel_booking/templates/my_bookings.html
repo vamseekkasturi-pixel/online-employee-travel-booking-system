@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}My Bookings{% endblock %}
+{% block content %}
+<div class="row-between">
+  <h1>My bookings</h1>
+  <a class="btn" href="{{ url_for('new_booking') }}">+ New request</a>
+</div>
+<div class="card">
+  {% if bookings %}
+  <table>
+    <thead>
+      <tr><th>#</th><th>Route</th><th>Mode</th><th>Dates</th><th>Cost</th><th>Hotel</th><th>Status</th><th>Admin remark</th><th></th></tr>
+    </thead>
+    <tbody>
+    {% for b in bookings %}
+      <tr>
+        <td>{{ b['id'] }}</td>
+        <td>{{ b['origin'] }} → {{ b['destination'] }}<br><small class="muted">{{ b['purpose'] }}</small></td>
+        <td>{{ b['travel_mode'] }}</td>
+        <td>{{ b['depart_date'] }}{% if b['return_date'] %}<br>to {{ b['return_date'] }}{% endif %}</td>
+        <td>{{ b['estimated_cost']|money }}</td>
+        <td>{{ 'Yes' if b['hotel_required'] else 'No' }}</td>
+        <td><span class="badge {{ b['status']|lower }}">{{ b['status'] }}</span></td>
+        <td>{{ b['admin_remark'] or '—' }}</td>
+        <td>
+          {% if b['status'] in ('Pending', 'Approved') %}
+          <form method="post" action="{{ url_for('cancel_booking', booking_id=b['id']) }}"
+                onsubmit="return confirm('Cancel this booking?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <button class="btn small danger" type="submit">Cancel</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="muted">You have no travel requests yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

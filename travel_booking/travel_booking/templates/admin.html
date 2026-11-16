@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Approvals{% endblock %}
+{% block content %}
+<h1>Travel approvals</h1>
+
+<div class="stats">
+  {% for status, n in stats.items() %}
+    <div class="stat"><span class="num">{{ n }}</span><span class="badge {{ status|lower }}">{{ status }}</span></div>
+  {% endfor %}
+</div>
+
+<div class="tabs">
+  {% for f in filters %}
+    <a class="{{ 'active' if f == active }}" href="{{ url_for('admin_dashboard', status=f) }}">{{ f }}</a>
+  {% endfor %}
+</div>
+
+<div class="card">
+  {% if bookings %}
+  <table>
+    <thead>
+      <tr><th>#</th><th>Employee</th><th>Route</th><th>Dates</th><th>Cost</th><th>Status</th><th>Decision</th></tr>
+    </thead>
+    <tbody>
+    {% for b in bookings %}
+      <tr>
+        <td>{{ b['id'] }}</td>
+        <td>{{ b['employee'] }}<br><small class="muted">{{ b['department'] }}</small></td>
+        <td>{{ b['origin'] }} → {{ b['destination'] }} ({{ b['travel_mode'] }})<br>
+            <small class="muted">{{ b['purpose'] }}{% if b['hotel_required'] %} · hotel needed{% endif %}</small></td>
+        <td>{{ b['depart_date'] }}{% if b['return_date'] %}<br>to {{ b['return_date'] }}{% endif %}</td>
+        <td>{{ b['estimated_cost']|money }}</td>
+        <td><span class="badge {{ b['status']|lower }}">{{ b['status'] }}</span></td>
+        <td>
+          {% if b['status'] == 'Pending' %}
+          <form method="post" action="{{ url_for('decide_booking', booking_id=b['id']) }}" class="decide">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <input type="text" name="remark" placeholder="Remark (required to reject)">
+            <button class="btn small" name="action" value="approve" type="submit">Approve</button>
+            <button class="btn small danger" name="action" value="reject" type="submit">Reject</button>
+          </form>
+          {% else %}
+            {{ b['admin_remark'] or '—' }}
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="muted">No requests in this view.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h1>Hello, {{ current_user['name'] }}</h1>
+<p class="muted">{{ current_user['department'] }} department</p>
+
+<div class="stats">
+  {% for status, n in counts.items() %}
+    <div class="stat"><span class="num">{{ n }}</span><span class="badge {{ status|lower }}">{{ status }}</span></div>
+  {% endfor %}
+</div>
+
+<div class="card">
+  <div class="row-between">
+    <h2>Upcoming approved trips</h2>
+    <a class="btn" href="{{ url_for('new_booking') }}">+ New travel request</a>
+  </div>
+  {% if upcoming %}
+    <table>
+      <thead><tr><th>Route</th><th>Mode</th><th>Departs</th><th>Returns</th></tr></thead>
+      <tbody>
+      {% for b in upcoming %}
+        <tr>
+          <td>{{ b['origin'] }} → {{ b['destination'] }}</td>
+          <td>{{ b['travel_mode'] }}</td>
+          <td>{{ b['depart_date'] }}</td>
+          <td>{{ b['return_date'] or '—' }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="muted">No upcoming approved trips.</p>
+  {% endif %}
+</div>
+{% endblock %}

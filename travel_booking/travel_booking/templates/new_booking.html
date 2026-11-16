@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}New Travel Request{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>New travel request</h1>
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <div class="grid">
+      <label>Travel mode
+        <select name="travel_mode" required>
+          {% for m in modes %}
+            <option value="{{ m }}" {{ 'selected' if form.get('travel_mode') == m }}>{{ m }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Estimated cost (₹)
+        <input type="number" name="estimated_cost" min="0" step="0.01" value="{{ form.get('estimated_cost', '') }}">
+      </label>
+      <label>From
+        <input type="text" name="origin" value="{{ form.get('origin', '') }}" required>
+      </label>
+      <label>To
+        <input type="text" name="destination" value="{{ form.get('destination', '') }}" required>
+      </label>
+      <label>Departure date
+        <input type="date" name="depart_date" min="{{ today }}" value="{{ form.get('depart_date', '') }}" required>
+      </label>
+      <label>Return date (optional)
+        <input type="date" name="return_date" min="{{ today }}" value="{{ form.get('return_date', '') }}">
+      </label>
+    </div>
+    <label>Purpose of travel
+      <textarea name="purpose" rows="3" required>{{ form.get('purpose', '') }}</textarea>
+    </label>
+    <label class="check">
+      <input type="checkbox" name="hotel_required" {{ 'checked' if form.get('hotel_required') }}>
+      Hotel accommodation required
+    </label>
+    <button class="btn" type="submit">Submit request</button>
+    <a class="btn secondary" href="{{ url_for('my_bookings') }}">Cancel</a>
+  </form>
+</div>
+{% endblock %}
